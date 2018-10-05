@@ -1,58 +1,59 @@
 import { Animator, Sprite, ProgressRate } from '../src';
 import createContext from './create-context';
 
-const ballPainter = {
-    RADIUS: 5,
+const pointPainter = {
     paint(sprite, context) {
         context.beginPath();
         context.arc(
             sprite.left + sprite.width / 2,
             sprite.top + sprite.height / 2,
-            this.RADIUS, 0, Math.PI * 2, false,
+            1, 0, Math.PI * 2, false,
         );
-        context.clip();
-        context.shadowColor = '#aaa';
-        context.shadowOffsetX = -4;
-        context.shadowOffsetY = -4;
-        context.shadowBlur = 8;
-        context.lineWidth = 2;
-        context.strokeStyle = 'rgb(100, 100, 195)';
-        context.fillStyle = 'rgba(0, 144, 255, 0.5)';
+        context.fillStyle = 'rgb(100, 100, 195)';
         context.fill();
-        context.stroke();
     },
 };
 
-const horizontalMover = {
-    DISTANCE: 800,
-    DURATION: 1100,
-    timeWarper: ProgressRate.warp('circular'),
-    execute(sprite, context, t) {
-        const percent = this.timeWarper.map((t % this.DURATION) / this.DURATION);
-        sprite.left = sprite.initialState.left + this.DISTANCE * percent;
-    },
-};
+function createCircularMotion(options) {
+    const key = options.key || 'left';
+    const timeWarper = ProgressRate.offset(options.phase || 0).warp('circular');
+    const duration = options.duration || 1000;
+    const distance = options.distance || 80;
+    return {
+        execute(sprite, context, t) {
+            const percent = timeWarper.map((t % duration) / duration);
+            sprite[key] = sprite.initialState[key] + distance * percent;
+        },
+    };
+}
 
-const verticalMover = {
-    DISTANCE: 300,
-    DURATION: 1200,
-    timeWarper: ProgressRate.warp('circular'),
-    execute(sprite, context, t) {
-        const percent = this.timeWarper.map((t % this.DURATION) / this.DURATION);
-        sprite.top = sprite.initialState.top + this.DISTANCE * percent;
-    },
-};
+const sprites = Array(20).fill(null).map((_, index) => {
+    const SIZE = 80;
+    const GAP = 80;
+    const LIMIT = 6;
 
-const animator = new Animator([
-    new Sprite({
-        left: 50,
-        top: 50,
-        painter: ballPainter,
+    const rowIndex = Math.floor((SIZE + GAP) * index / LIMIT); // FIXME:
+    return new Sprite({
+        left: (rowIndex % 6) * (SIZE + GAP) + 50, // FIXME: 被除数错误
+        top: rowIndex * (SIZE + GAP) + 50,
+        painter: pointPainter,
         behaviors: [
-            horizontalMover,
-            verticalMover,
+            createCircularMotion({
+                key: 'left',
+                duration: 900,
+                phase: index * 0.25,
+            }),
+            createCircularMotion({
+                key: 'top',
+                duration: 250 * (1 + index),
+            }),
         ],
-    }),
-], createContext(1000, 400));
+    });
+});
+
+const animator = new Animator(sprites, createContext(1000, 400));
 
 animator.start(false);
+setTimeout(() => {
+    animator.stop();
+}, 40000);
