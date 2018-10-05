@@ -1,5 +1,11 @@
 import { Animator, Sprite, ProgressRate } from '../src';
 import createContext from './create-context';
+// import visualizeWarp from './warp-visualizer';
+
+// visualizeWarp(ProgressRate
+//     .warp('repeat', 2)
+//     .warp('circular'),
+// createContext(500, 500));
 
 const pointPainter = {
     paint(sprite, context) {
@@ -15,9 +21,12 @@ const pointPainter = {
 };
 
 function createCircularMotion(options) {
+    const duration = options.duration || 3000;
     const key = options.key || 'left';
-    const timeWarper = ProgressRate.offset(options.phase || 0).warp('circular');
-    const duration = options.duration || 1000;
+    const timeWarper = ProgressRate
+        .warp('offset', options.phase || 0)
+        .warp('repeat', options.cycle || 1)
+        .warp('circular');
     const distance = options.distance || 80;
     return {
         execute(sprite, context, t) {
@@ -27,33 +36,44 @@ function createCircularMotion(options) {
     };
 }
 
-const sprites = Array(24).fill(null).map((_, index) => {
+function createGrids(xmax, ymax) {
+    const grids = [];
+    for (let i = 0; i < xmax; i++) {
+        for (let j = 0; j < ymax; j++) {
+            grids.push({
+                x: i,
+                y: j,
+            });
+        }
+    }
+    return grids;
+}
+
+const sprites = createGrids(4, 4).map(({ x, y }) => {
     const SIZE = 80;
     const GAP = 80;
-    const LIMIT = 6;
 
-    const rowIndex = Math.floor(index / LIMIT);
     return new Sprite({
-        left: (index % 6) * (SIZE + GAP) + 50,
-        top: rowIndex * (SIZE + GAP) + 50,
+        left: 50 + x * (SIZE + GAP),
+        top: 50 + y * (SIZE + GAP),
         painter: pointPainter,
         behaviors: [
             createCircularMotion({
                 key: 'left',
-                duration: 200 * index + 400, // TODO: 质数集
-                phase: index * 0.25,
+                cycle: x,
+                phase: 0.25,
             }),
             createCircularMotion({
                 key: 'top',
-                duration: 300 * index + 100, // TODO: 质数集
+                cycle: y,
             }),
         ],
     });
 });
 
-const animator = new Animator(sprites, createContext(1000, 700));
+const animator = new Animator(sprites, createContext(700, 700));
 
 animator.start(false);
-setTimeout(() => {
+window.setTimeout(() => {
     animator.stop();
-}, 40000);
+}, 10000);
