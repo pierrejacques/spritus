@@ -27,31 +27,31 @@ function createCircularMotion(options) {
     };
 }
 
-const sprites = Array(20).fill(null).map((_, index) => {
+const sprites = Array(24).fill(null).map((_, index) => {
     const SIZE = 80;
     const GAP = 80;
     const LIMIT = 6;
 
-    const rowIndex = Math.floor((SIZE + GAP) * index / LIMIT); // FIXME:
+    const rowIndex = Math.floor(index / LIMIT);
     return new Sprite({
-        left: (rowIndex % 6) * (SIZE + GAP) + 50, // FIXME: 被除数错误
+        left: (index % 6) * (SIZE + GAP) + 50,
         top: rowIndex * (SIZE + GAP) + 50,
         painter: pointPainter,
         behaviors: [
             createCircularMotion({
                 key: 'left',
-                duration: 900,
+                duration: 200 * index + 400, // TODO: 质数集
                 phase: index * 0.25,
             }),
             createCircularMotion({
                 key: 'top',
-                duration: 250 * (1 + index),
+                duration: 300 * index + 100, // TODO: 质数集
             }),
         ],
     });
 });
 
-const animator = new Animator(sprites, createContext(1000, 400));
+const animator = new Animator(sprites, createContext(1000, 700));
 
 animator.start(false);
 setTimeout(() => {
