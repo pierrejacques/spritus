@@ -23,10 +23,10 @@ const pointPainter = {
 function createCircularMotion(options) {
     const duration = options.duration || 3000;
     const key = options.key || 'left';
-    const timeWarper = ProgressRate
-        .warp('offset', options.phase || 0)
-        .warp('repeat', options.cycle || 1)
-        .warp('circular');
+    const timeWarper = new ProgressRate()
+        .to('offset', options.phase || 0)
+        .to('repeat', options.cycle || 1)
+        .to('circular');
     const distance = options.distance || 80;
     return {
         execute(sprite, context, t) {

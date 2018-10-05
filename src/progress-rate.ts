@@ -34,16 +34,14 @@ const builtIns = {
     },
 };
 
+interface ProgressMapper {
+    (input: number): number;
+}
+
 export default class ProgressRate {
-    static create() {
-        return new ProgressRate();
-    }
-
-    static warp(...params) {
-        return new ProgressRate().warp(...params);
-    }
-
-    private mappers = [];
+    constructor(
+        public mappers: ProgressMapper[] = []
+    ) {}
 
     map(value: number): number {
         let result = value;
@@ -53,7 +51,7 @@ export default class ProgressRate {
         return result;
     }
 
-    warp(type = 'linear', ...params): ProgressRate {
+    to(type = 'linear', ...params): ProgressRate {
         this.mappers.push((builtIns[type] || builtIns['linear'])(...params));
         return this;
     }
