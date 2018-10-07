@@ -1,4 +1,4 @@
-import { Painter, Behavior } from './interfaces';
+import { SpritePainter, SpriteBehavior, Paintable } from './interfaces';
 
 interface SpriteState {
     top?: number;
@@ -10,11 +10,11 @@ interface SpriteState {
 }
 
 interface SpriteOptions extends SpriteState {
-    behaviors?: Behavior[];
-    painter?: Painter;
+    behaviors?: SpriteBehavior[];
+    painter?: SpritePainter;
 }
 
-export default class Sprite {
+export default class Sprite implements Paintable {
     top = 0;
     left = 0;
     width = 20;
@@ -22,8 +22,8 @@ export default class Sprite {
     velocityX = 20;
     velocityY = 20;
 
-    behaviors: Behavior[] = [];
-    painter: Painter;
+    behaviors: SpriteBehavior[] = [];
+    painter: SpritePainter;
 
     visible = true;
     animating = false;

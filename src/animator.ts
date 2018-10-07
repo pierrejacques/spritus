@@ -30,4 +30,8 @@ export default class Animator {
         window.cancelAnimationFrame(this.animation);
         this.startStamp = 0;
     }
+    
+    appendTo(element: HTMLElement) {
+        element.appendChild(this.context.canvas);
+    }
 }

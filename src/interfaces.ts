@@ -1,6 +1,6 @@
 import Sprite from './sprite';
 
-export interface Behavior {
+export interface SpriteBehavior {
     execute: (
         sprite: Sprite,
         context: CanvasRenderingContext2D,
@@ -8,7 +8,11 @@ export interface Behavior {
     ) => void;
 }
 
-export interface Painter {
+export interface SpritePainter {
     paint: (sprite: Sprite, context: CanvasRenderingContext2D) => void;
     advance?: () => void;
+}
+
+export interface Paintable {
+    paint: (context: CanvasRenderingContext2D) => void;
 }

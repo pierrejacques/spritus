@@ -1,11 +1,5 @@
 import { Animator, Sprite, ProgressRate } from '../src';
 import createContext from './create-context';
-// import visualizeWarp from './warp-visualizer';
-
-// visualizeWarp(ProgressRate
-//     .warp('repeat', 2)
-//     .warp('circular'),
-// createContext(500, 500));
 
 const pointPainter = {
     paint(sprite, context) {
@@ -72,6 +66,7 @@ const sprites = createGrids(4, 4).map(({ x, y }) => {
 });
 
 const animator = new Animator(sprites, createContext(700, 700));
+animator.appendTo(document.getElementById('canvas'));
 
 animator.start(false);
 window.setTimeout(() => {

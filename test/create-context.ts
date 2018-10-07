@@ -1,4 +1,4 @@
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
 
 export default (width = 500, height = 500) => {
