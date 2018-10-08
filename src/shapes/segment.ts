@@ -53,7 +53,14 @@ export default class Segment extends Shape implements Paintable {
             this.end.toVector(fwv1).subtract(other.end.toVector(fwv2)).norm < epsilon
         ) || (
             this.start.toVector(fwv1).subtract(other.end.toVector(fwv2)).norm < epsilon &&
-            this.end.toVector(fwv1).subtract(other.start.toVector(fwv2)).norm < epsilon            
+            this.end.toVector(fwv1).subtract(other.start.toVector(fwv2)).norm < epsilon
+        );
+    }
+
+    middle() {
+        return new Point(
+          (this.start.x + this.end.x) / 2,
+          (this.start.y + this.end.y) / 2,
         );
     }
 }
