@@ -2,7 +2,7 @@ import Shape from './shape';
 import { Paintable } from '../interfaces';
 import { Vector, Point, Projection } from '../geo-base';
 
-export default class Round extends Shape implements Paintable {
+export default class Circle extends Shape implements Paintable {
     static defaultStyles = {
         strokeStyle: '#333',
     };
@@ -10,7 +10,7 @@ export default class Round extends Shape implements Paintable {
     constructor(
         public center: Point,
         public radius: number,
-        private styles: Object = Round.defaultStyles,
+        private styles: Object = Circle.defaultStyles,
     ) {
         super();
     }
@@ -25,12 +25,20 @@ export default class Round extends Shape implements Paintable {
         context.restore();
     }
 
+    collidesWith(other: Shape) {
+        if (other instanceof Circle) {
+            const { center, radius } = (other as Circle);
+            return center.toVector().subtract(this.center).norm < (this.radius + radius);
+        }
+        return super.collidesWith(other);
+    }
+
     project(axis: Vector) {
         const centerScala = this.center.toVector().dot(axis);
         return new Projection(centerScala - this.radius, centerScala + this.radius);
     }
 
-    getAxes() { // TODO: how?
+    getAxes() {
         return [];
     }
 
