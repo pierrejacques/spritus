@@ -71,16 +71,4 @@ export default class Polygon extends Shape implements Paintable {
         });
         context.closePath();
     }
-
-    addPoint(point: Point) {
-        this.points.push(point);   
-    }
-
-    setStyles(styles: Object, merge: boolean = true) {
-        if (merge) {
-            Object.assign(this.styles, styles);
-        } else {
-            this.styles = styles;
-        }
-    }
 }

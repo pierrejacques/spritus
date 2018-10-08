@@ -14,7 +14,7 @@ export class Point {
             v.y = this.y;
             return v;
         }
-        return new Vector(this.x, this.y); 
+        return new Vector(this.x, this.y);
     }
 }
 
@@ -25,7 +25,12 @@ export class Projection {
     ) {}
 
     overlaps(other: Projection) {
-        return this.max > other.min && this.min < other.max;
+        // o = this; | = other;
+        if (this.min > other.max || this.max < other.min) return 0; // separated
+        if (this.max > other.max && this.min < other.min) return other.max - other.min; // o-|--|-o
+        if (this.max < other.max && this.min > other.min) return this.max - this.min; // |-o--o-|
+        if (this.min < other.min) return this.max - other.min; // o-|--o-|
+        return other.max - this.min; // |--o-|-o
     }
 }
 
@@ -63,6 +68,10 @@ export class Vector {
 
     dot(other: Vector) {
         return this.x * other.x + this.y * other.y;
+    }
+
+    scale(ratio: number) {
+        return new Vector(this.x * ratio, this.y * ratio);
     }
 
     normalize() {

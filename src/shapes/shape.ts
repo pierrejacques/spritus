@@ -1,10 +1,17 @@
 import { Point, Vector, Projection } from '../geo-base';
 
 export default abstract class Shape {
-    collidesWith(other: Shape) {
-        return [...this.getAxes(), ...other.getAxes()].every(axis =>
-            this.project(axis).overlaps(other.project(axis))
-        );
+    minTrans(other: Shape): Vector {
+        let min = Infinite;
+        let mtv = null;
+        [...this.getAxes(), ...other.getAxes()].forEach(axis => {
+            const overlap = this.project(axis).overlaps(other.project(axis);
+            if (overlap > 0 && overlap < min) {
+                min = overlap;
+                mtv = axis.scale(overlap);
+            }
+        });
+        return mtv || Vector.zero();
     }
 
     abstract getAxes(): Vector[];
