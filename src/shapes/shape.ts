@@ -2,10 +2,10 @@ import { Point, Vector, Projection } from '../geo-base';
 
 export default abstract class Shape {
     minTrans(other: Shape): Vector {
-        let min = Infinite;
+        let min = Number.POSITIVE_INFINITY;
         let mtv = null;
         [...this.getAxes(), ...other.getAxes()].forEach(axis => {
-            const overlap = this.project(axis).overlaps(other.project(axis);
+            const overlap = this.project(axis).overlaps(other.project(axis));
             if (overlap > 0 && overlap < min) {
                 min = overlap;
                 mtv = axis.scale(overlap);

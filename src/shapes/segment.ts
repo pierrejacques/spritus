@@ -37,23 +37,24 @@ export default class Segment extends Shape implements Paintable {
         ];
     }
 
-    contains(point: Point, epsilon: number = 1e-15) {
+    contains(point: Point) {
         return (
             (point.x - this.start.x) * (point.x - this.end.x) < 0 || (point.y - this.start.y) * (point.y - this.end.y) < 0
         ) && Math.abs(
             (point.x - this.start.x) * (point.y - this.end.y) - (point.x - this.end.x) * (point.y - this.start.y)
-        ) < epsilon
+        ) < Number.EPSILON
     }
 
-    equals(other: Segment, epsilon: number = 1e-15) {
+    equals(other: Segment) {
+        const EPSILON = Number.EPSILON;
         const fwv1 = Vector.zero();
         const fwv2 = Vector.zero();
         return (
-            this.start.toVector(fwv1).subtract(other.start.toVector(fwv2)).norm < epsilon &&
-            this.end.toVector(fwv1).subtract(other.end.toVector(fwv2)).norm < epsilon
+            this.start.toVector(fwv1).subtract(other.start.toVector(fwv2)).norm < EPSILON &&
+            this.end.toVector(fwv1).subtract(other.end.toVector(fwv2)).norm < EPSILON
         ) || (
-            this.start.toVector(fwv1).subtract(other.end.toVector(fwv2)).norm < epsilon &&
-            this.end.toVector(fwv1).subtract(other.start.toVector(fwv2)).norm < epsilon
+            this.start.toVector(fwv1).subtract(other.end.toVector(fwv2)).norm < EPSILON &&
+            this.end.toVector(fwv1).subtract(other.start.toVector(fwv2)).norm < EPSILON
         );
     }
 

@@ -20,8 +20,8 @@ export default class Polygon extends Shape implements Paintable {
     }
 
     project(axis: Vector) {
-        let min = Infinity;
-        let max = -Infinity;
+        let min = Number.POSITIVE_INFINITY;
+        let max = -Number.NEGATIVE_INFINITY;
         const fwv = Vector.zero();
         this.points.map((point) => {
             const scalar = point.toVector(fwv).dot(axis);
