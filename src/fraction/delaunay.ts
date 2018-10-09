@@ -1,5 +1,5 @@
 import { Point } from '../geo-base';
-import { Matrix } from '../alg-base';
+import { Matrix } from '../math-base';
 import { ShapeReflect, Circle, Segment } from '../shapes';
 import { Paintable } from '../interfaces';
 

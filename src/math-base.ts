@@ -24,7 +24,10 @@ export class Matrix {
         return new Matrix(trans);
     }
 
-    get determinant(): number { // TODO: 主元消去法
+    get determinant(): number { // FIXME: 使用主元消去法
+        const size = this.row;
+        if (size !== this.col) throw new Error('only square matrix has determinant');
+        // implement
         return 0;
     }
 
