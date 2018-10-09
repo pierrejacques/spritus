@@ -1,6 +1,6 @@
-import Sprite from './sprite';
+import Sprite from '../sprite';
 
-abtract class Game {
+abstract class Game {
     sprites: Sprite[] = [];
     startTime = 0;
     lastTime = 0;
@@ -14,7 +14,7 @@ abtract class Game {
 
     constructor(
         public name: string,
-        public context: CanvasRendering2DContext,
+        public context: CanvasRenderingContext2D,
     ) {}
 
     abstract start(): void;

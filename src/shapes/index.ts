@@ -11,4 +11,5 @@ export {
     Segment,
     ShapeReflect,
     SpriteShape,
+    Shape,
 };

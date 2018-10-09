@@ -1,4 +1,4 @@
-import { Point, Vector, Projection } from '../geo-base';
+import { Point } from '../geo-base';
 import { Matrix } from '../alg-base';
 import Circle from './circle';
 
@@ -24,7 +24,7 @@ export default class ShapeReflect {
             [1, points[2].y, norm2],
         ]);
         const center = new Point(xMatrix.determinant / base, yMatrix.determinant / base);
-        const radius = center.toVector().substract(points[0].toVector());
+        const radius = center.toVector().subtract(points[0].toVector()).norm;
         return new Circle(center, radius);
     }
 }
