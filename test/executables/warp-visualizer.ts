@@ -1,4 +1,4 @@
-import { ProgressRate } from '../src/index';
+import { ProgressRate } from '../../src/index';
 
 const MARGIN = 50;
 

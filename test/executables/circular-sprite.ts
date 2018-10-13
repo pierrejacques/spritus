@@ -1,5 +1,4 @@
-import { Animator, Sprite, ProgressRate } from '../src';
-import createContext from './create-context';
+import { Animator, Sprite, ProgressRate } from '../../src';
 
 const pointPainter = {
     paint(sprite, context) {
@@ -65,10 +64,10 @@ const sprites = createGrids(4, 4).map(({ x, y }) => {
     });
 });
 
-const animator = new Animator(sprites, createContext(700, 700));
-animator.appendTo(document.getElementById('canvas'));
-
-animator.start(false);
-window.setTimeout(() => {
-    animator.stop();
-}, 10000);
+export default (context: CanvasRenderingContext2D) => {
+    const animator = new Animator(sprites, context);
+    animator.start(false);
+    window.setTimeout(() => {
+        animator.stop();
+    }, 10000);
+}

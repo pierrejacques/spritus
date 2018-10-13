@@ -20,15 +20,16 @@ export default class Circle extends Shape implements Paintable {
         Object.assign(context, this.styles);
         context.beginPath();
         context.moveTo(this.center.x, this.center.y);
-        context.arc(this.center.x, this.center.y, this.radius, 0, Math.PI);
+        context.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2);
         context.stroke();
+        context.fill();
         context.restore();
     }
 
     minTrans(other: Shape) {
         if (other instanceof Circle) {
             const { center, radius } = (other as Circle);
-            const linkVec = center.toVector().subtract(this.center);
+            const linkVec = center.toVector().subtract(this.center.toVector());
             const distance = linkVec.norm;
             const sumRad = this.radius + radius;
             return distance < sumRad ? linkVec.normalize().scale(sumRad - distance) : Vector.zero();

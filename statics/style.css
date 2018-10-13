@@ -1,3 +1,14 @@
+body {
+    margin: 0;
+}
+
 #canvas {
+    display: flex;
+    height: 100vh;
+}
+
+canvas {
+    margin: auto;
     background: yellowgreen;
+    border: 1px solid #eee;
 }

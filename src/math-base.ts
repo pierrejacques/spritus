@@ -1,6 +1,9 @@
+import { Point, Vector } from "./geo-base";
+
 export class Matrix {
+    public data: number[][];
     constructor(
-        public data: number[][],
+        data: number[][],
     ) {}
 
     get row () {
@@ -47,5 +50,30 @@ export class Matrix {
             }
         }
         return new Matrix(result);
+    }
+}
+
+interface PointGenerator {
+    (): Point;
+}
+
+export class Distribution {
+    static uniform(minX, minY, maxX, maxY, stepX = 1, stepY = 1): Distribution {
+        return new Distribution(() => new Point(
+            minX + Math.floor(Math.random() * (maxX - minX) / stepX) * stepX,
+            minY + Math.floor(Math.random() * (maxY - minY) / stepY) * stepY,
+        ));
+    }
+
+    // static gaussian(x, y, ): Distribution {
+
+    // }
+
+    constructor(
+        private generator: PointGenerator
+    ) {}
+
+    generate() {
+        return this.generator();
     }
 }
