@@ -1,12 +1,31 @@
-export class Point {
+import { Coord } from './interfaces';
+import { Matrix } from './math-base';
+
+export class Point implements Coord {
     static origin() {
         return new Point(0, 0);
     }
 
+    static distance(p1: Coord, p2: Coord) {
+        return ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2) ** 0.5;
+    }
+
+    x: number;
+    y: number;
+
     constructor(
-        public x: number,
-        public y: number,
-    ) {}
+        x: number | Coord,
+        y?: number,
+    ) {
+        if (typeof x === 'number') {
+            if (typeof y !== 'number') throw new Error('param absence');
+            this.x = x;
+            this.y = y;
+            return;
+        }
+        this.x = x.x;
+        this.y = x.y;
+    }
 
     toVector(v?: Vector) {
         if (v) { // 便于实现Vector的享元
@@ -91,5 +110,39 @@ export class Vector {
 
     normal() {
         return this.perpendicular().normalize();
+    }
+}
+
+export class Triangle {
+    circumCenter: Point;
+    circumRadius: number;
+
+    constructor(
+        public points: Point[]
+    ) {
+        const dx01 = 2 * (points[0].x - points[1].x);
+        const dy01 = 2 * (points[0].y - points[1].y);
+        const dx02 = 2 * (points[0].x - points[2].x);
+        const dy02 = 2 * (points[0].y - points[2].y);
+        const r0 = points[0].x ** 2 + points[0].y ** 2;
+        const r1 = points[1].x ** 2 + points[1].y ** 2;
+        const r2 = points[2].x ** 2 + points[2].y ** 2;
+        const dr01 = r0 - r1;
+        const dr02 = r0 - r2;
+
+        const D = new Matrix([
+            [dx01, dy01],
+            [dx02, dy02],
+        ]).determinant;
+        const Dx = new Matrix([
+            [dr01, dy01],
+            [dr02, dy02],
+        ]).determinant;
+        const Dy = new Matrix([
+            [dx01, dr01],
+            [dx02, dr02],
+        ]).determinant;
+        this.circumCenter = new Point(Dx / D, Dy / D);
+        this.circumRadius = Point.distance(this.circumCenter, points[0]);
     }
 }

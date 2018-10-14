@@ -1,73 +1,29 @@
-import { Point } from '../geo-base';
-import { Matrix } from '../math-base';
-import { ShapeReflect, Circle, Segment } from '../shapes';
+import { Point, Triangle } from '../geo-base';
 import { Paintable } from '../interfaces';
 
 /**
  * @classdesc maximize the minimum angle of all the angles of the triangles in the triangulation
  */
-class DelaunayTriangle {
-    adjoinTriangles: Set<DelaunayTriangle> = new Set();
-    circumcircle: Circle = null;
+class EdgeSet {
+    set: Array<Point[]> = [];
 
-    constructor(public points: Point[]) {
-        const baseMatrix = new Matrix([
-            [1, points[0].x, points[0].y],
-            [1, points[1].x, points[1].y],
-            [1, points[2].x, points[2].y],
-        ]);
-        const base = 2 * baseMatrix.determinant;
-        const norm0 = points[0].toVector().norm;
-        const norm1 = points[1].toVector().norm;
-        const norm2 = points[2].toVector().norm;
-        const xMatrix = new Matrix([
-            [1, points[0].x, norm0],
-            [1, points[1].x, norm1],
-            [1, points[2].x, norm2],
-        ]);
-        const yMatrix = new Matrix([
-            [1, points[0].y, norm0],
-            [1, points[1].y, norm1],
-            [1, points[2].y, norm2],
-        ]);
-        const center = new Point(xMatrix.determinant / base, yMatrix.determinant / base);
-        const radius = center.toVector().subtract(points[0].toVector()).norm;
-        this.circumcircle = new Circle(center, radius);
-    }
+    try(edge: Point[]) {
 
-    isAdjoinWidth(other: DelaunayTriangle) {
-        let count = 0;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                if (this.points[i] === other.points[i]) {
-                    count ++;
-                };
-            }
-            // skip further checking
-            if (i === 1 && count === 0) break;
-        }
-        return count === 2;
-    }
-
-    has(point: Point) {
-        return this.points.includes(point);
-    }
-
-    get edges() {
-        return [
-            new Segment(this.points[0], this.points[1]),
-            new Segment(this.points[1], this.points[2]),
-            new Segment(this.points[2], this.points[0]),
-        ];
     }
 }
 
 // TODO: make it expandable
 export default class Delaunay implements Paintable {
-    triangles: DelaunayTriangle[] = [];
-    edges: Set<Segment> = new Set();
+    static defaultStyles = {
+        strokeStyle: '#333',
+    };
 
-    constructor(public points: Point[]) {
+    triangles: Triangle[] = [];
+
+    constructor(
+        public points: Point[],
+        public styles = Delaunay.defaultStyles
+    ) {
         if (points.length < 2) throw new Error('delaunay triangulation requires more than 1 points');
         this.bowyerWatson(points);
     }
@@ -88,58 +44,76 @@ export default class Delaunay implements Paintable {
         const height = maxY - minY;
 
         // create super triangle
+        const MARGIN = 100;
         const superVertex = [
-            new Point((minX + maxX) / 2, minY - width / 2),
-            new Point(minX - height, maxY),
-            new Point(maxX + height, maxY),
-        ]
-        this.pushTriangles(points[0], superVertex);
+            new Point((minX + maxX) / 2, minY - width / 2 - MARGIN),
+            new Point(minX - height - MARGIN, maxY + MARGIN),
+            new Point(maxX + height + MARGIN, maxY + MARGIN),
+        ];
+        this.triangles.push(new Triangle([points[0], superVertex[0], superVertex[1]]));
+        this.triangles.push(new Triangle([points[0], superVertex[1], superVertex[2]]));
+        this.triangles.push(new Triangle([points[0], superVertex[0], superVertex[2]]));
 
         // push in other points
-        points.forEach((point) => {
-            const trianglesToDestroy = [];
-            const newLinks = new Set();
-            const n = this.triangles.length;
-            for (let j = 1; j < n; j ++) {
-                const triangle = this.triangles[j];
-                if (triangle.circumcircle.contains(point)) {
-                    trianglesToDestroy.push(triangle);
-                    triangle.points.forEach(p => {
-                        newLinks.add(p);
-                    });
-                    if (trianglesToDestroy.length === 2) break;
+        for (let i = 1; i < points.length; i ++) {
+            const point = points[i];
+            const badTriangles = [];
+
+            // find bas triangles
+            this.triangles.forEach((triangle) => {
+                if (Point.distance(triangle.circumCenter, point) < triangle.circumRadius) {
+                    badTriangles.push(triangle);
                 }
-            }
-            console.log(trianglesToDestroy.length); // TODO: 理论上讲应该都是2
-            trianglesToDestroy.forEach(triangle => {
-                this.triangles.splice(this.triangles.indexOf(triangle), 1);
             });
-            this.pushTriangles(point, [...newLinks]);
-        });
+
+            const borderEdges = [];
+            badTriangles.forEach(triangle => {
+                this.triangles.splice(this.triangles.indexOf(triangle), 1); // remove bad triangles
+                for (let j = 0; j < 3; j++) {
+                    const edge = [triangle.points[j], triangle.points[j === 2 ? 0 : j + 1]];
+                    console.log(edge);
+                    const index = borderEdges.findIndex(e => e[0] === edge[0] && e[1] ===edge[1] || e[0] === edge[1] && e[1] === edge[0])
+                    if (index !== -1) {
+                        borderEdges.splice(index, 1); // 由于一条边最多重合一次，故这样做没问题
+                    } else {
+                        borderEdges.push(edge);
+                    }
+                }
+            });
+
+            borderEdges.forEach(([p1, p2]) => {
+                this.triangles.push(new Triangle([point, p1, p2]));
+            });
+        }
 
         // remove vertex from super triangle
-        this.triangles = this.triangles.filter((triangle) => {
-            superVertex.every(superP => triangle.points.every(point => point !== superP));
+        this.triangles = this.triangles.filter((triangle) => 
+            superVertex.every(superP => 
+                triangle.points.every(point => point !== superP)
+            )
+        );
+    }
+
+    paint(context: CanvasRenderingContext2D) {
+        // 外接圆圆心
+        this.triangles.forEach(triangle => {
+            const center = triangle.circumCenter;
+            context.moveTo(center.x, center.y);
+            context.beginPath();
+            context.strokeStyle = '#cce';
+            context.arc(center.x, center.y, triangle.circumRadius, 0, Math.PI * 2);
+            context.stroke();
         });
+
         this.triangles.forEach((triangle) => {
-            triangle.edges.forEach(this.edges.add);
-        });
-    }
-
-    pushTriangles(newPoint: Point, points: Point[]) {
-        const n = points.length;
-        for (let i = 0; i < n; i ++) {
-            this.triangles.push(new DelaunayTriangle([
-                newPoint,
-                points[i],
-                points[i === n - 1 ? 0 : i + 1],
-            ]));
-        }
-    }
-
-    paint(context) {
-        this.edges.forEach(edge => {
-            edge.paint(context);
+            Object.assign(context, this.styles);
+            const p = triangle.points;
+            context.beginPath();
+            context.moveTo(p[0].x, p[0].y);
+            context.lineTo(p[1].x, p[1].y);
+            context.lineTo(p[2].x, p[2].y);
+            context.closePath();
+            context.stroke();
         });
     }
 }

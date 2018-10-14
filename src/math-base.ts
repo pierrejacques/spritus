@@ -1,9 +1,8 @@
-import { Point, Vector } from "./geo-base";
+import { Coord } from './interfaces';
 
 export class Matrix {
-    public data: number[][];
     constructor(
-        data: number[][],
+        public data: number[][],
     ) {}
 
     get row () {
@@ -32,13 +31,14 @@ export class Matrix {
         if (!size || size !== this.col) throw new Error('only square matrix has determinant');
         if (size === 1) return this.data[0][0];
         if (size === 2) return this.data[0][0] * this.data[1][1] - this.data[0][1] * this.data[1][0];
-        if (size === 3) return
-            this.data[0][0] * this.data[1][1] * this.data[2][2] +
-            this.data[0][1] * this.data[1][2] * this.data[2][0] +
-            this.data[0][2] * this.data[1][0] * this.data[2][1] -
-            this.data[0][0] * this.data[1][2] * this.data[2][1] -
-            this.data[0][1] * this.data[1][0] * this.data[2][2] -
-            this.data[0][2] * this.data[1][1] * this.data[2][0];
+        if (size === 3) {
+            return this.data[0][0] * this.data[1][1] * this.data[2][2] +
+                this.data[0][1] * this.data[1][2] * this.data[2][0] +
+                this.data[0][2] * this.data[1][0] * this.data[2][1] -
+                this.data[0][0] * this.data[1][2] * this.data[2][1] -
+                this.data[0][1] * this.data[1][0] * this.data[2][2] -
+                this.data[0][2] * this.data[1][1] * this.data[2][0];
+        }
         throw new Error('dimension higher than 3 temporarily not supported');
     }
 
@@ -61,16 +61,16 @@ export class Matrix {
     }
 }
 
-interface PointGenerator {
-    (): Point;
+interface CoordGenerator {
+    (): Coord;
 }
 
 export class Distribution {
     static uniform(minX, minY, maxX, maxY, stepX = 1, stepY = 1): Distribution {
-        return new Distribution(() => new Point(
-            minX + Math.floor(Math.random() * (maxX - minX) / stepX) * stepX,
-            minY + Math.floor(Math.random() * (maxY - minY) / stepY) * stepY,
-        ));
+        return new Distribution(() => ({
+            x: minX + Math.floor(Math.random() * (maxX - minX) / stepX) * stepX,
+            y: minY + Math.floor(Math.random() * (maxY - minY) / stepY) * stepY,
+        }));
     }
 
     // static gaussian(x, y, ): Distribution {
@@ -78,7 +78,7 @@ export class Distribution {
     // }
 
     constructor(
-        private generator: PointGenerator
+        private generator: CoordGenerator
     ) {}
 
     generate() {

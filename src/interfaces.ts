@@ -1,5 +1,10 @@
 import Sprite from './sprite';
 
+export interface Coord {
+    x: number;
+    y: number;
+}
+
 export interface SpriteBehavior {
     execute: (
         sprite: Sprite,

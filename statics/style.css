@@ -9,6 +9,6 @@ body {
 
 canvas {
     margin: auto;
-    background: yellowgreen;
-    border: 1px solid #eee;
+    /* background: yellowgreen; */
+    /* border: 1px solid #eee; */
 }
