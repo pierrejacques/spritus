@@ -4,32 +4,23 @@ import { Paintable } from '../interfaces';
 /**
  * @classdesc maximize the minimum angle of all the angles of the triangles in the triangulation
  */
-class EdgeSet {
-    set: Array<Point[]> = [];
-
-    try(edge: Point[]) {
-
-    }
-}
-
 // TODO: make it expandable
 export default class Delaunay implements Paintable {
     static defaultStyles = {
         strokeStyle: '#333',
     };
 
-    triangles: Triangle[] = [];
+    public triangles: Triangle[] = [];
 
     constructor(
         public points: Point[],
         public styles = Delaunay.defaultStyles
     ) {
         if (points.length < 2) throw new Error('delaunay triangulation requires more than 1 points');
-        this.bowyerWatson(points);
     }
 
-    private bowyerWatson(points: Point[]) {
-        // calculate bbox
+    calculate() {
+        const points = this.points;
         let minX = Number.POSITIVE_INFINITY;
         let maxX = Number.NEGATIVE_INFINITY;
         let minY = Number.POSITIVE_INFINITY;
@@ -71,7 +62,6 @@ export default class Delaunay implements Paintable {
                 this.triangles.splice(this.triangles.indexOf(triangle), 1); // remove bad triangles
                 for (let j = 0; j < 3; j++) {
                     const edge = [triangle.points[j], triangle.points[j === 2 ? 0 : j + 1]];
-                    console.log(edge);
                     const index = borderEdges.findIndex(e => e[0] === edge[0] && e[1] ===edge[1] || e[0] === edge[1] && e[1] === edge[0])
                     if (index !== -1) {
                         borderEdges.splice(index, 1); // 由于一条边最多重合一次，故这样做没问题
@@ -96,15 +86,14 @@ export default class Delaunay implements Paintable {
 
     paint(context: CanvasRenderingContext2D) {
         // 外接圆圆心
-        this.triangles.forEach(triangle => {
-            const center = triangle.circumCenter;
-            context.moveTo(center.x, center.y);
-            context.beginPath();
-            context.strokeStyle = '#cce';
-            context.arc(center.x, center.y, triangle.circumRadius, 0, Math.PI * 2);
-            context.stroke();
-        });
-
+        // this.triangles.forEach(triangle => {
+        //     const center = triangle.circumCenter;
+        //     context.moveTo(center.x, center.y);
+        //     context.beginPath();
+        //     context.strokeStyle = '#cce';
+        //     context.arc(center.x, center.y, triangle.circumRadius, 0, Math.PI * 2);
+        //     context.stroke();
+        // });
         this.triangles.forEach((triangle) => {
             Object.assign(context, this.styles);
             const p = triangle.points;

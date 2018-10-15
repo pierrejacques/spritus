@@ -5,7 +5,7 @@ import warpVisualizer from './executables/warp-visualizer';
 import randomDots from './executables/random-dots';
 
 const targetEl = document.getElementById('canvas');
-const context = createContext(1200, 800, 2);
+const context = createContext(1200, 800, 3);
 targetEl.append(context.canvas);
 
 // circularSprite(context);
